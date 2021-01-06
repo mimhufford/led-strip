@@ -1,7 +1,5 @@
-from threading import Thread
 from time import sleep
 from rpi_ws281x import *
-from flask import Flask, render_template, redirect
 
 ###################
 # LED STRIP SETUP #
@@ -20,28 +18,70 @@ strip.begin()
 #########
 # MODES #
 #########
-class Off:
-    def tick(self):
-        for i in range(strip.numPixels()):
-            strip.setPixelColor(i, Color(0,0,0))
-        strip.show()
-        print("off")
-        return 1
+class Solid:
+    def __init__(self):
+        self.done = False
+        self.r = 0
+        self.g = 0
+        self.b = 0
 
-class On:
-    def tick(self):
-        for i in range(strip.numPixels()):
-            strip.setPixelColor(i, Color(255,255,255))
-        strip.show()
-        print("on")
-        return 1
+    def set_colour(self, r, g, b):
+        if self.r != r:
+            self.r = r
+            self.done = False
+        if self.g != g:
+            self.g = g
+            self.done = False
+        if self.b != b:
+            self.b = b
+            self.done = False
 
-pattern = [Off(), On()]
+    def tick(self):
+        if self.done:
+            return 0.01
+        self.done = True
+        for i in range(strip.numPixels()):
+            c = strip.getPixelColorRGB(i)
+            if c.r != self.r:
+                self.done = False
+                if c.r < self.r:
+                    c.r += 1
+                else:
+                    c.r -= 1
+            if c.g != self.g:
+                self.done = False
+                if c.g < self.g:
+                    c.g += 1
+                else:
+                    c.g -= 1
+            if c.b != self.b:
+                self.done = False
+                if c.b < self.b:
+                    c.b += 1
+                else:
+                    c.b -= 1
+            strip.setPixelColor(i, Color(c.r,c.g,c.b))
+            self.done = False
+        strip.show()
+        return 1/1000
+
+
+pattern = [Solid()]
 
 while True:
     f = open('data', 'r')
-    mode = int(f.read())
+    data = f.read()
     f.close()
+    if data == '':
+        continue
+
+    data = [int(x) for x in data.split()]
+
+    mode = data[0]
+
     if mode == -1:
         break
+    elif mode == 0:
+        pattern[mode].set_colour(data[1], data[3], data[2])
+
     sleep(pattern[mode].tick())

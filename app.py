@@ -7,17 +7,38 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/on')
-def on():
+@app.route('/red')
+def red():
     f = open('data', 'w')
-    f.write('1')
+    f.write('0 255 0 0')
+    f.close()
+    return redirect('/')
+
+@app.route('/green')
+def green():
+    f = open('data', 'w')
+    f.write('0 0 255 0')
+    f.close()
+    return redirect('/')
+
+@app.route('/blue')
+def blue():
+    f = open('data', 'w')
+    f.write('0 0 0 255')
+    f.close()
+    return redirect('/')
+
+@app.route('/white')
+def white():
+    f = open('data', 'w')
+    f.write('0 255 255 255')
     f.close()
     return redirect('/')
 
 @app.route('/off')
 def off():
     f = open('data', 'w')
-    f.write('0')
+    f.write('0 0 0 0')
     f.close()
     return redirect('/')
 
