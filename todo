@@ -1,2 +1,13 @@
-[ ] Gradient
-[ ] Pulsing brightness
+FEATURES
+========
+[x] Solid mode
+  [ ] Pulse brightness option
+[ ] Gradient mode
+  [ ] Pulse brightness option
+  [ ] Rotate option (gradient moves along strip, last colour blends back to first)
+[ ] Sequence mode - list of colours, show each for X seconds, blend to next, loop
+
+QUESTIONS
+=========
+- Can Solid and Gradient mode be merged if it just has a list of colours?
+- RGB blend won't be great, switch to HSL instead?
