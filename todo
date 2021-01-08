@@ -1,7 +1,7 @@
 FEATURES
 ========
 [x] Solid mode
-  [ ] Pulse brightness option
+  [x] Pulse brightness option
 [ ] Gradient mode
   [ ] Pulse brightness option
   [ ] Rotate option (gradient moves along strip, last colour blends back to first)

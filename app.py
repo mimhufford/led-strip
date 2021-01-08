@@ -11,29 +11,9 @@ def write(data):
 def index():
     return render_template('index.html')
 
-@app.route('/red')
-def red():
-    write([0, 255, 0, 0])
-    return redirect('/')
-
-@app.route('/green')
-def green():
-    write([0, 0, 255, 0])
-    return redirect('/')
-
-@app.route('/blue')
-def blue():
-    write([0, 0, 0, 255])
-    return redirect('/')
-
-@app.route('/white')
-def white():
-    write([0, 255, 255, 255])
-    return redirect('/')
-
-@app.route('/off')
-def off():
-    write([0, 0, 0, 0])
+@app.route('/solid/<pulse>/<r>/<g>/<b>')
+def solid(pulse, r, g, b):
+    write([0, int(pulse), int(r), int(g), int(b)])
     return redirect('/')
 
 @app.route('/shutdown')
