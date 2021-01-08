@@ -32,8 +32,11 @@ class OnData(FileSystemEventHandler):
         active = False
         break
       else:
-        global data
         data = [int(x) for x in file_data]
+        global mode
+        mode = data[0]
+        if mode == 0:
+            pattern[0].set_colour(bool(data[1]), data[2], data[4], data[3])
         break
 
 ####################
@@ -83,11 +86,9 @@ class Solid:
 # LED UPDATE TICK THREAD #
 ##########################
 def tick_leds():
-    pattern = [Solid()]
     while active:
-        if data[0] == 0:
-            pattern[0].set_colour(bool(data[1]), data[2], data[4], data[3])
-            pattern[0].tick()
+        if mode >= 0 and mode < len(pattern):
+            pattern[mode].tick()
         sleep(DELAY)
 
 ############
@@ -95,9 +96,10 @@ def tick_leds():
 ############
 strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
 strip.begin()
+pattern = [Solid()]
 active = True
 DELAY = 1/30
-data = [-1]
+mode = -1
 t = Thread(target=tick_leds)
 t.start()
 observer = Observer()

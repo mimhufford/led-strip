@@ -1,7 +1,6 @@
 FEATURES
 ========
 [x] Solid mode
-  [x] Pulse brightness option
 [ ] Gradient mode
   [ ] Pulse brightness option
   [ ] Rotate option (gradient moves along strip, last colour blends back to first)
@@ -9,7 +8,6 @@ FEATURES
 
 TODO
 ====
-[ ] Only set data in mode when file change callback is triggered
 
 QUESTIONS
 =========
