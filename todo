@@ -7,6 +7,10 @@ FEATURES
   [ ] Rotate option (gradient moves along strip, last colour blends back to first)
 [ ] Sequence mode - list of colours, show each for X seconds, blend to next, loop
 
+TODO
+====
+[ ] Only set data in mode when file change callback is triggered
+
 QUESTIONS
 =========
 - Can Solid and Gradient mode be merged if it just has a list of colours?
