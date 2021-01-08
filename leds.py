@@ -61,9 +61,9 @@ class Solid:
             c = strip.getPixelColorRGB(i)
             if c.r != self.r or c.g != self.g or c.b != self.b:
                 self.done = False
-                c.r += 1 if c.r < self.r else -1 if cr > self.r else 0
-                c.g += 1 if c.g < self.g else -1 if cg > self.g else 0
-                c.b += 1 if c.b < self.b else -1 if cb > self.b else 0
+                c.r += 1 if c.r < self.r else -1 if c.r > self.r else 0
+                c.g += 1 if c.g < self.g else -1 if c.g > self.g else 0
+                c.b += 1 if c.b < self.b else -1 if c.b > self.b else 0
                 strip.setPixelColor(i, Color(c.r,c.g,c.b))
         strip.show()
         return 1/1000
@@ -86,7 +86,7 @@ def tick_leds():
 strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
 strip.begin()
 active = True
-data = []
+data = [-1]
 t = Thread(target=tick_leds)
 t.start()
 observer = Observer()
