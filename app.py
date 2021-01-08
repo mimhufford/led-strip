@@ -16,6 +16,11 @@ def solid(pulse, r, g, b):
     write([0, int(pulse), int(r), int(g), int(b)])
     return redirect('/')
 
+@app.route('/sequence')
+def sequence():
+    write([1])
+    return redirect('/')
+
 @app.route('/shutdown')
 def shutdown():
     write(b'quit')

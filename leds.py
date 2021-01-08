@@ -27,21 +27,28 @@ class OnData(FileSystemEventHandler):
       if len(file_data) == 0:
         print('BLOCKED, TRYING AGAIN...')
         sleep(0.01)
+        continue
       elif file_data == b'quit':
         global active
         active = False
-        break
       else:
         data = [int(x) for x in file_data]
         global mode
         mode = data[0]
         if mode == 0:
             pattern[0].set_colour(bool(data[1]), data[2], data[4], data[3])
-        break
+        elif mode == 1:
+            pass # nothing to do until we pass in colour
+
+      break # always end the loop, unless the file was locked and we continued
 
 ####################
 # HELPER FUNCTIONS #
 ####################
+# TODO: this needs improving once we have a better float based lerp
+def approx_eq(a, b):
+    return abs(a - b) < 30
+
 def lerp(a, b, t):
     return a + (b - a) * t
 
@@ -82,6 +89,39 @@ class Solid:
             strip.setPixelColor(i, Color(c.r, c.g, c.b))
         strip.show()
 
+class Sequence:
+    def __init__(self):
+        self.colours = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
+        self.index = 0
+
+    def set_sequence(self, colours):
+        self.colours = colours
+        self.index = 0
+
+    def tick(self):
+        # make sure brightness is on full
+        b = strip.getBrightness()
+        b = min(255, b + 1)
+        strip.setBrightness(b)
+
+        # keep pushing towards next colour
+        move_to_next = True
+        target = self.colours[self.index]
+        for i in range(strip.numPixels()):
+            c = strip.getPixelColorRGB(i)
+            c.r = int(lerp(c.r, target[0], DELAY))
+            c.g = int(lerp(c.g, target[1], DELAY))
+            c.b = int(lerp(c.b, target[2], DELAY))
+            strip.setPixelColor(i, Color(c.r, c.g, c.b))
+            if not (approx_eq(c.r, target[0]) and approx_eq(c.g, target[1]) and approx_eq(c.b, target[2])):
+                move_to_next = False
+
+        # switch target colour
+        if move_to_next:
+            self.index = (self.index + 1) % len(self.colours)
+        strip.show()
+
+
 ##########################
 # LED UPDATE TICK THREAD #
 ##########################
@@ -96,7 +136,7 @@ def tick_leds():
 ############
 strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
 strip.begin()
-pattern = [Solid()]
+pattern = [Solid(), Sequence()]
 active = True
 DELAY = 1/30
 mode = -1

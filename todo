@@ -4,10 +4,15 @@ FEATURES
 [ ] Gradient mode
   [ ] Pulse brightness option
   [ ] Rotate option (gradient moves along strip, last colour blends back to first)
-[ ] Sequence mode - list of colours, show each for X seconds, blend to next, loop
+[~] Sequence mode
+  [x] List of colours
+  [x] Blend to next, loop
+  [ ] Show each colour for X seconds
+  [ ] Select colours from front end and pass through to back end
 
 TODO
 ====
+- Colours need to be stored as floats so lerp and approx_eq can behave more nicely
 
 QUESTIONS
 =========
