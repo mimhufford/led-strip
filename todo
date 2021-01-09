@@ -12,7 +12,6 @@ FEATURES
 
 TODO
 ====
-~ Colours need to be stored as floats so lerp and approx_eq can behave more nicely
 
 QUESTIONS
 =========

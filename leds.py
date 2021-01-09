@@ -19,28 +19,27 @@ LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 # CALLBACK FOR FILE CHANGE EVENT #
 ##################################
 class OnData(FileSystemEventHandler):
-  def on_modified(self, event):
-    while True:
-        file_data = str()
-        with open('data', 'rb') as f:
-            file_data = f.read()
-        if len(file_data) == 0:
-            print('BLOCKED, TRYING AGAIN...')
-            sleep(0.01)
-            continue
-        elif file_data == b'quit':
-            global active
-            active = False
-        else:
-            data = [int(x) for x in file_data]
-            global mode
-            mode = data[0]
-            if mode == 0:
-                pattern[0].set_colour(bool(data[1]), data[2], data[4], data[3])
-            elif mode == 1:
-                pass # nothing to do until we pass in colour
-
-      break # always end the loop, unless the file was locked and we continued
+    def on_modified(self, event):
+        while True:
+            file_data = str()
+            with open('data', 'rb') as f:
+                file_data = f.read()
+            if len(file_data) == 0:
+                print('BLOCKED, TRYING AGAIN...')
+                sleep(0.01)
+                continue
+            elif file_data == b'quit':
+                global active
+                active = False
+            else:
+                data = [int(x) for x in file_data]
+                global mode
+                mode = data[0]
+                if mode == 0:
+                    pattern[0].set_colour(bool(data[1]), data[2], data[4], data[3])
+                elif mode == 1:
+                    pass # nothing to do until we pass in colour
+            break # always end the loop, unless the file was locked and we continued
 
 ####################
 # HELPER FUNCTIONS #
@@ -95,7 +94,7 @@ class Solid:
  
         for i, p in enumerate(self.state):
             colour_lerp(p, self.target, DELAY)
-            strip.setPixelColor(i, Color(int(p[0]), int(p[1]), int(p[2]))
+            strip.setPixelColor(i, Color(int(p[0]), int(p[1]), int(p[2])))
         strip.show()
 
 class Sequence:
@@ -119,8 +118,8 @@ class Sequence:
         move_to_next = True
         target = self.colours[self.index]
         for i, p in enumerate(self.state):
-            colour_lerp(p, self.target, DELAY)
-            strip.setPixelColor(i, Color(int(p[0]), int(p[1]), int(p[2]))
+            colour_lerp(p, target, DELAY)
+            strip.setPixelColor(i, Color(int(p[0]), int(p[1]), int(p[2])))
             if not colour_approx_eq(p, target):
                 move_to_next = False
 
