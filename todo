@@ -1,12 +1,14 @@
 FEATURES
 ========
 [x] Solid mode
-[ ] Gradient mode
+[~] Gradient mode
   [ ] Pulse brightness option
   [ ] Rotate option (gradient moves along strip, last colour blends back to first)
+  [ ] Allow more than 2 colours
 [~] Sequence mode
   [x] List of colours
   [x] Blend to next, loop
+  [ ] Sequence of gradients as well as solid colour
   [ ] Show each colour for X seconds
   [ ] Select colours from front end and pass through to back end
 

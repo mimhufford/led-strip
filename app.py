@@ -21,6 +21,11 @@ def sequence():
     write([1])
     return redirect('/')
 
+@app.route('/gradient/<ar>/<ag>/<ab>/<br>/<bg>/<bb>')
+def gradient(ar, ag, ab, br, bg, bb):
+    write([2, int(ar), int(ag), int(ab), int(br), int(bg), int(bb)])
+    return redirect('/')
+
 @app.route('/shutdown')
 def shutdown():
     write(b'quit')

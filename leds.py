@@ -35,10 +35,12 @@ class OnData(FileSystemEventHandler):
                 data = [int(x) for x in file_data]
                 global mode
                 mode = data[0]
-                if mode == 0:
+                if mode == 0: # Solid
                     pattern[0].set_colour(bool(data[1]), data[2], data[4], data[3])
-                elif mode == 1:
+                elif mode == 1: # Sequence
                     pass # nothing to do until we pass in colour
+                elif mode == 2: # Gradient
+                    pattern[2].set_gradient((data[1], data[3], data[2]), (data[4], data[6], data[5]))
             break # always end the loop, unless the file was locked and we continued
 
 ####################
@@ -128,6 +130,34 @@ class Sequence:
             self.index = (self.index + 1) % len(self.colours)
         strip.show()
 
+class Gradient:
+    def __init__(self):
+        self.state = float_strip()
+        a = (255.0, 0.0, 0.0)
+        b = (0.0, 0.0, 250.0)
+        self.target = []
+        for i in range(LED_COUNT):
+            t = i / LED_COUNT
+            self.target.append((lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)))
+
+    def set_gradient(self, a, b):
+        self.state = float_strip()
+        self.target = []
+        for i in range(LED_COUNT):
+            t = i / LED_COUNT
+            self.target.append((lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)))
+
+    def tick(self):
+        # make sure brightness is on full
+        b = strip.getBrightness()
+        b = min(255, b + 1)
+        strip.setBrightness(b)
+
+        for i, p in enumerate(self.state):
+            colour_lerp(p, self.target[i], DELAY)
+            strip.setPixelColor(i, Color(int(p[0]), int(p[1]), int(p[2])))
+        strip.show()
+
 ##########################
 # LED UPDATE TICK THREAD #
 ##########################
@@ -142,7 +172,7 @@ def tick_leds():
 ############
 strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
 strip.begin()
-pattern = [Solid(), Sequence()]
+pattern = [Solid(), Sequence(), Gradient()]
 active = True
 DELAY = 1/30
 mode = -1
