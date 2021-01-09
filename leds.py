@@ -40,7 +40,7 @@ class OnData(FileSystemEventHandler):
                 elif mode == 1: # Sequence
                     pass # nothing to do until we pass in colour
                 elif mode == 2: # Gradient
-                    pattern[2].set_gradient((data[1], data[3], data[2]), (data[4], data[6], data[5]))
+                    pattern[2].set_gradient(bool(data[1]), (data[2], data[4], data[3]), (data[5], data[7], data[6]))
             break # always end the loop, unless the file was locked and we continued
 
 ####################
@@ -83,6 +83,7 @@ class Solid:
         self.pulse = pulse
 
     def tick(self):
+        # pulse brightness
         b = strip.getBrightness()
         if self.pulse:
             if b == 255:
@@ -91,9 +92,10 @@ class Solid:
                 self.pulse_direction = 1
             strip.setBrightness(b + self.pulse_direction)
         else:
-            b = min(255, b + 1)    
+            b = min(255, b + 1)
             strip.setBrightness(b)
  
+        # push towards target colour
         for i, p in enumerate(self.state):
             colour_lerp(p, self.target, DELAY)
             strip.setPixelColor(i, Color(int(p[0]), int(p[1]), int(p[2])))
@@ -132,27 +134,36 @@ class Sequence:
 
 class Gradient:
     def __init__(self):
-        self.state = float_strip()
+        self.pulse = False
+        self.pulse_direction = 1
+        self.state = []
+        self.target = []
         a = (255.0, 0.0, 0.0)
         b = (0.0, 0.0, 250.0)
-        self.target = []
-        for i in range(LED_COUNT):
-            t = i / LED_COUNT
-            self.target.append((lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)))
+        self.set_gradient(False, a, b)
 
-    def set_gradient(self, a, b):
+    def set_gradient(self, pulse, a, b):
+        self.pulse = pulse
         self.state = float_strip()
         self.target = []
         for i in range(LED_COUNT):
-            t = i / LED_COUNT
+            t = i / (LED_COUNT-1)
             self.target.append((lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)))
 
     def tick(self):
-        # make sure brightness is on full
+        # pulse brightness
         b = strip.getBrightness()
-        b = min(255, b + 1)
-        strip.setBrightness(b)
+        if self.pulse:
+            if b == 255:
+                self.pulse_direction = -1
+            elif b == 0:
+                self.pulse_direction = 1
+            strip.setBrightness(b + self.pulse_direction)
+        else:
+            b = min(255, b + 1)
+            strip.setBrightness(b)
 
+        # push towars target colour
         for i, p in enumerate(self.state):
             colour_lerp(p, self.target[i], DELAY)
             strip.setPixelColor(i, Color(int(p[0]), int(p[1]), int(p[2])))
