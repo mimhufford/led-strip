@@ -21,52 +21,64 @@ LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 class OnData(FileSystemEventHandler):
   def on_modified(self, event):
     while True:
-      file_data = str()
-      with open('data', 'rb') as f:
-        file_data = f.read()
-      if len(file_data) == 0:
-        print('BLOCKED, TRYING AGAIN...')
-        sleep(0.01)
-        continue
-      elif file_data == b'quit':
-        global active
-        active = False
-      else:
-        data = [int(x) for x in file_data]
-        global mode
-        mode = data[0]
-        if mode == 0:
-            pattern[0].set_colour(bool(data[1]), data[2], data[4], data[3])
-        elif mode == 1:
-            pass # nothing to do until we pass in colour
+        file_data = str()
+        with open('data', 'rb') as f:
+            file_data = f.read()
+        if len(file_data) == 0:
+            print('BLOCKED, TRYING AGAIN...')
+            sleep(0.01)
+            continue
+        elif file_data == b'quit':
+            global active
+            active = False
+        else:
+            data = [int(x) for x in file_data]
+            global mode
+            mode = data[0]
+            if mode == 0:
+                pattern[0].set_colour(bool(data[1]), data[2], data[4], data[3])
+            elif mode == 1:
+                pass # nothing to do until we pass in colour
 
       break # always end the loop, unless the file was locked and we continued
 
 ####################
 # HELPER FUNCTIONS #
 ####################
-# TODO: this needs improving once we have a better float based lerp
 def approx_eq(a, b):
-    return abs(a - b) < 30
+    return abs(a - b) < 1
+
+def colour_approx_eq(a, b):
+    return approx_eq(a[0], b[0]) and approx_eq(a[1], b[1]) and approx_eq(a[2], b[2])
 
 def lerp(a, b, t):
     return a + (b - a) * t
+
+def colour_lerp(a, b, t):
+    a[0] = lerp(a[0], b[0], t)
+    a[1] = lerp(a[1], b[1], t)
+    a[2] = lerp(a[2], b[2], t)
+
+def float_strip():
+    state = []
+    for i in range(strip.numPixels()):
+        c = strip.getPixelColorRGB(i)
+        state.append([float(c.r), float(c.g), float(c.b)])
+    return state
 
 #########
 # MODES #
 #########
 class Solid:
     def __init__(self):
-        self.r = 0
-        self.g = 0
-        self.b = 0
+        self.state = float_strip()
+        self.target = (0.0, 0.0, 0.0)
         self.pulse = False
         self.pulse_direction = 1
 
     def set_colour(self, pulse, r, g, b):
-        self.r = r
-        self.g = g
-        self.b = b
+        self.state = float_strip()
+        self.target = (float(r), float(g), float(b))
         self.pulse = pulse
 
     def tick(self):
@@ -81,20 +93,19 @@ class Solid:
             b = min(255, b + 1)    
             strip.setBrightness(b)
  
-        for i in range(strip.numPixels()):
-            c = strip.getPixelColorRGB(i)
-            c.r = int(lerp(c.r, self.r, DELAY))
-            c.g = int(lerp(c.g, self.g, DELAY))
-            c.b = int(lerp(c.b, self.b, DELAY))
-            strip.setPixelColor(i, Color(c.r, c.g, c.b))
+        for i, p in enumerate(self.state):
+            colour_lerp(p, self.target, DELAY)
+            strip.setPixelColor(i, Color(int(p[0]), int(p[1]), int(p[2]))
         strip.show()
 
 class Sequence:
     def __init__(self):
+        self.state = float_strip()
         self.colours = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
         self.index = 0
 
     def set_sequence(self, colours):
+        self.state = float_strip()
         self.colours = colours
         self.index = 0
 
@@ -107,20 +118,16 @@ class Sequence:
         # keep pushing towards next colour
         move_to_next = True
         target = self.colours[self.index]
-        for i in range(strip.numPixels()):
-            c = strip.getPixelColorRGB(i)
-            c.r = int(lerp(c.r, target[0], DELAY))
-            c.g = int(lerp(c.g, target[1], DELAY))
-            c.b = int(lerp(c.b, target[2], DELAY))
-            strip.setPixelColor(i, Color(c.r, c.g, c.b))
-            if not (approx_eq(c.r, target[0]) and approx_eq(c.g, target[1]) and approx_eq(c.b, target[2])):
+        for i, p in enumerate(self.state):
+            colour_lerp(p, self.target, DELAY)
+            strip.setPixelColor(i, Color(int(p[0]), int(p[1]), int(p[2]))
+            if not colour_approx_eq(p, target):
                 move_to_next = False
 
         # switch target colour
         if move_to_next:
             self.index = (self.index + 1) % len(self.colours)
         strip.show()
-
 
 ##########################
 # LED UPDATE TICK THREAD #
