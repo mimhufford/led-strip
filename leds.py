@@ -34,13 +34,19 @@ class OnData(FileSystemEventHandler):
             else:
                 data = [int(x) for x in file_data]
                 global mode
-                mode = data[0]
-                if mode == 0: # Solid
-                    pattern[0].set_colour(bool(data[1]), data[2], data[4], data[3])
-                elif mode == 1: # Sequence
-                    pass # nothing to do until we pass in colour
-                elif mode == 2: # Gradient
-                    pattern[2].set_gradient(bool(data[1]), (data[2], data[4], data[3]), (data[5], data[7], data[6]))
+                if data[0] == 0: # Solid
+                    mode = 1
+                    pulse = bool(data[1])
+                    colour = (data[2], data[4], data[3])
+                    pattern[1].set_gradient(pulse, colour, colour)
+                elif data[0] == 1: # Sequence
+                    mode = 0
+                elif data[0] == 2: # Gradient
+                    mode = 1
+                    pulse = bool(data[1])
+                    colour_a = (data[2], data[4], data[3])
+                    colour_b = (data[5], data[7], data[6])
+                    pattern[1].set_gradient(pulse, colour_a, colour_b)
             break # always end the loop, unless the file was locked and we continued
 
 ####################
@@ -70,37 +76,6 @@ def float_strip():
 #########
 # MODES #
 #########
-class Solid:
-    def __init__(self):
-        self.state = float_strip()
-        self.target = (0.0, 0.0, 0.0)
-        self.pulse = False
-        self.pulse_direction = 1
-
-    def set_colour(self, pulse, r, g, b):
-        self.state = float_strip()
-        self.target = (float(r), float(g), float(b))
-        self.pulse = pulse
-
-    def tick(self):
-        # pulse brightness
-        b = strip.getBrightness()
-        if self.pulse:
-            if b == 255:
-                self.pulse_direction = -1
-            elif b == 0:
-                self.pulse_direction = 1
-            strip.setBrightness(b + self.pulse_direction)
-        else:
-            b = min(255, b + 1)
-            strip.setBrightness(b)
- 
-        # push towards target colour
-        for i, p in enumerate(self.state):
-            colour_lerp(p, self.target, DELAY)
-            strip.setPixelColor(i, Color(int(p[0]), int(p[1]), int(p[2])))
-        strip.show()
-
 class Sequence:
     def __init__(self):
         self.state = float_strip()
@@ -163,7 +138,7 @@ class Gradient:
             b = min(255, b + 1)
             strip.setBrightness(b)
 
-        # push towars target colour
+        # push towards target colour
         for i, p in enumerate(self.state):
             colour_lerp(p, self.target[i], DELAY)
             strip.setPixelColor(i, Color(int(p[0]), int(p[1]), int(p[2])))
@@ -183,7 +158,7 @@ def tick_leds():
 ############
 strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
 strip.begin()
-pattern = [Solid(), Sequence(), Gradient()]
+pattern = [Sequence(), Gradient()]
 active = True
 DELAY = 1/30
 mode = -1

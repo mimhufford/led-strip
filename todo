@@ -17,5 +17,4 @@ TODO
 
 QUESTIONS
 =========
-- Can Solid and Gradient mode be merged if it just has a list of colours?
 - RGB blend won't be great, switch to HSL instead?
