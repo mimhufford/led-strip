@@ -25,6 +25,11 @@ def sequence():
 def gradient(pulse, rotate, colours):
     data = [2, int(pulse), int(rotate)]
     colours = colours.split('-')
+    if len(colours) == 0:
+        print('ERROR: No colours provided')
+    elif len(colours) % 3 != 0:
+        print('ERROR: Each colour requires 3 values')
+    else:
     for c in colours:
         data.append(int(c))
     write(data)
