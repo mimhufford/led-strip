@@ -7,7 +7,7 @@ from time import sleep
 ###################
 # LED STRIP SETUP #
 ###################
-LED_COUNT      = 15      # Number of LED pixels.
+LED_COUNT      = 15      # Number of LED pixels. NOTE: 100 is full strip
 LED_PIN        = 18      # GPIO pin connected to the pixels (18 uses PWM!).
 LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
 LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
@@ -38,17 +38,18 @@ class OnData(FileSystemEventHandler):
                     mode = 1
                     pulse = bool(data[1])
                     colour = (data[2], data[4], data[3])
-                    pattern[1].set_gradient(pulse, colour, colour)
+                    pattern[1].set_gradient(pulse, False, colour, colour)
                 elif data[0] == 1: # Sequence
                     mode = 0
                 elif data[0] == 2: # Gradient
                     mode = 1
                     pulse = bool(data[1])
-                    data = data[2:]
+                    rotate = bool(data[2])
+                    data = data[3:]
                     colours = []
                     for i in range(0, len(data), 3): # group colours into tuples
                         colours.append((data[i], data[i+2], data[i+1]))
-                    pattern[1].set_gradient(pulse, *colours)
+                    pattern[1].set_gradient(pulse, rotate, *colours)
             break # always end the loop, unless the file was locked and we continued
 
 ####################
@@ -113,12 +114,14 @@ class Gradient:
     def __init__(self):
         self.pulse = False
         self.pulse_direction = 1
+        self.rotate = False
         self.state = []
         self.target = []
-        self.set_gradient(False, (255.0, 0.0, 0.0), (0.0, 0.0, 255.0))
+        self.set_gradient(False, False, (255.0, 0.0, 0.0), (0.0, 0.0, 255.0))
 
-    def set_gradient(self, pulse, *colours):
+    def set_gradient(self, pulse, rotate, *colours):
         self.pulse = pulse
+        self.rotate = rotate
         self.state = float_strip()
         self.target = []
         for i in range(LED_COUNT):
@@ -140,6 +143,11 @@ class Gradient:
         else:
             b = min(255, b + 1)
             strip.setBrightness(b)
+
+        # rotate colours
+        if self.rotate:
+            self.state.insert(0, self.state.pop())
+            self.target.insert(0, self.target.pop())
 
         # push towards target colour
         for i, p in enumerate(self.state):
