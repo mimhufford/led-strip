@@ -41,6 +41,11 @@ class OnData(FileSystemEventHandler):
                     pattern[1].set_gradient(pulse, False, colour, colour)
                 elif data[0] == 1: # Sequence
                     mode = 0
+                    data = data[1:]
+                    colours = []
+                    for i in range(0, len(data), 3): # group colours into tuples
+                        colours.append((data[i], data[i+2], data[i+1]))
+                    pattern[0].set_sequence(*colours)
                 elif data[0] == 2: # Gradient
                     mode = 1
                     pulse = bool(data[1])
@@ -82,8 +87,9 @@ def float_strip():
 class Sequence:
     def __init__(self):
         self.state = float_strip()
-        self.colours = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
+        self.colours = []
         self.index = 0
+        self.set_sequence([(255, 0, 0), (0, 255, 0), (0, 0, 255)])
 
     def set_sequence(self, colours):
         self.state = float_strip()
@@ -151,8 +157,8 @@ class Gradient:
             self.rotate_time += DELAY
             while rotate_time >= rotate_delay:
                 rotate_time -= rotate_delay
-            self.state.insert(0, self.state.pop())
-            self.target.insert(0, self.target.pop())
+                self.state.insert(0, self.state.pop())
+                self.target.insert(0, self.target.pop())
 
         # push towards target colour
         for i, p in enumerate(self.state):

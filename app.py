@@ -16,9 +16,18 @@ def solid(pulse, r, g, b):
     write([0, int(pulse), int(r), int(g), int(b)])
     return redirect('/')
 
-@app.route('/sequence')
-def sequence():
-    write([1])
+@app.route('/sequence/<colours>')
+def sequence(colours):
+    data = [1]
+    colours = colours.split('-')
+    if len(colours) == 0:
+        print('ERROR: No colours provided')
+    elif len(colours) % 3 != 0:
+        print('ERROR: Each colour requires 3 values')
+    else:
+        for c in colours:
+            data.append(int(c))
+        write(data)
     return redirect('/')
 
 @app.route('/gradient/<pulse>/<rotate>/<colours>')
@@ -30,9 +39,9 @@ def gradient(pulse, rotate, colours):
     elif len(colours) % 3 != 0:
         print('ERROR: Each colour requires 3 values')
     else:
-    for c in colours:
-        data.append(int(c))
-    write(data)
+        for c in colours:
+            data.append(int(c))
+        write(data)
     return redirect('/')
 
 @app.route('/shutdown')

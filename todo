@@ -14,7 +14,7 @@ FEATURES
   [x] Blend to next, loop
   [ ] Sequence of gradients as well as solid colour
   [ ] Show each colour for X seconds
-  [ ] Select colours from front end and pass through to back end
+  [x] Select colours from front end and pass through to back end
 
 TODO
 ====
