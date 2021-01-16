@@ -6,7 +6,8 @@ FEATURES
   [~] Rotate option
     [x] Gradient moves along strip
     [ ] Last colour automatically blends back into first
-    [ ] Control speed of rotation
+    [x] Control speed of rotation
+    [ ] Control speed of rotation from UI
   [x] Allow more than 2 colours
 [~] Sequence mode
   [x] List of colours
