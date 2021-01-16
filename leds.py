@@ -7,7 +7,7 @@ from time import sleep
 ###################
 # LED STRIP SETUP #
 ###################
-LED_COUNT      = 50      # Number of LED pixels.
+LED_COUNT      = 15      # Number of LED pixels.
 LED_PIN        = 18      # GPIO pin connected to the pixels (18 uses PWM!).
 LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
 LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
@@ -44,9 +44,11 @@ class OnData(FileSystemEventHandler):
                 elif data[0] == 2: # Gradient
                     mode = 1
                     pulse = bool(data[1])
-                    colour_a = (data[2], data[4], data[3])
-                    colour_b = (data[5], data[7], data[6])
-                    pattern[1].set_gradient(pulse, colour_a, colour_b)
+                    data = data[2:]
+                    colours = []
+                    for i in range(0, len(data), 3): # group colours into tuples
+                        colours.append((data[i], data[i+2], data[i+1]))
+                    pattern[1].set_gradient(pulse, *colours)
             break # always end the loop, unless the file was locked and we continued
 
 ####################
@@ -113,16 +115,17 @@ class Gradient:
         self.pulse_direction = 1
         self.state = []
         self.target = []
-        a = (255.0, 0.0, 0.0)
-        b = (0.0, 0.0, 250.0)
-        self.set_gradient(False, a, b)
+        self.set_gradient(False, (255.0, 0.0, 0.0), (0.0, 0.0, 255.0))
 
-    def set_gradient(self, pulse, a, b):
+    def set_gradient(self, pulse, *colours):
         self.pulse = pulse
         self.state = float_strip()
         self.target = []
         for i in range(LED_COUNT):
-            t = i / (LED_COUNT-1)
+            c_index = int(i / LED_COUNT * (len(colours)-1))
+            t = i / (LED_COUNT-1) * (len(colours)-1) - c_index
+            a = colours[c_index]
+            b = colours[c_index + 1]
             self.target.append((lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)))
 
     def tick(self):

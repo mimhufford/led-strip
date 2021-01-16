@@ -21,9 +21,13 @@ def sequence():
     write([1])
     return redirect('/')
 
-@app.route('/gradient/<pulse>/<ar>/<ag>/<ab>/<br>/<bg>/<bb>')
-def gradient(pulse, ar, ag, ab, br, bg, bb):
-    write([2, int(pulse), int(ar), int(ag), int(ab), int(br), int(bg), int(bb)])
+@app.route('/gradient/<pulse>/<colours>')
+def gradient(pulse, colours):
+    data = [2, int(pulse)]
+    colours = colours.split('-')
+    for c in colours:
+        data.append(int(c))
+    write(data)
     return redirect('/')
 
 @app.route('/shutdown')

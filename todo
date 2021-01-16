@@ -4,7 +4,7 @@ FEATURES
 [~] Gradient mode
   [x] Pulse brightness option
   [ ] Rotate option (gradient moves along strip, last colour blends back to first)
-  [ ] Allow more than 2 colours
+  [x] Allow more than 2 colours
 [~] Sequence mode
   [x] List of colours
   [x] Blend to next, loop
