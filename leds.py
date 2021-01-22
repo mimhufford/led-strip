@@ -2,6 +2,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from rpi_ws281x import *
 from threading import Thread
+from random import random
 from time import sleep
 import math
 
@@ -87,6 +88,35 @@ def float_strip():
 #########
 # MODES #
 #########
+class Fireplace:
+    def __init__(self):
+        self.colours = [
+            (255, 255, 255),
+            (255, 0, 0),
+            (180, 75, 0),
+            (0, 0, 0),
+        ]
+        pass
+
+    def tick(self):
+        # for each LED, based on its distance along the strip
+        # it will have a random chance to be a certain colour
+        # lower down the strip it will have more chance of being
+        # an intense white, then yellow, then from orange to off
+        # there's also a chance of random white flickers
+        for i in range(LED_COUNT):
+            t = i / (LED_COUNT-1) # 0.0 - 1.0
+            if random() > 0.97:
+                strip.setPixelColor(i, Color(255, 255, 255))
+            else:
+                ci = t * random() * (len(self.colours) - 1)
+                ca = math.floor(ci)
+                cb = math.ceil(ci)
+                c = [*self.colours[ca]]
+                colour_lerp(c, self.colours[cb], ci % 1)
+                strip.setPixelColor(i, Color(int(c[0]), int(c[1]), int(c[2])))
+        strip.show()
+
 class Bouncer:
     def __init__(self):
         self.speed = 0.1
@@ -103,7 +133,6 @@ class Bouncer:
             else:
                 strip.setPixelColor(i, Color(255, 255, 255))
         strip.show()
-        pass
 
 class Sequence:
     def __init__(self):

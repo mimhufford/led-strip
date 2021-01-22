@@ -15,8 +15,8 @@ FEATURES
   [ ] Sequence of gradients as well as solid colour
   [ ] Show each colour for X seconds
   [x] Select colours from front end and pass through to back end
-[ ] Standalone Effects
-  [ ] Fireplace
+[~] Standalone Effects
+  [x] Fireplace
   [ ] Comets
   [~] Bouncing light
     [ ] Try smoothing it out across multiple LEDS
