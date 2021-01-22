@@ -19,6 +19,10 @@ FEATURES
   [ ] Fireplace
   [ ] Comets
   [ ] Bouncing light (try smoothing it out across multiple LEDS)
+[ ] Notifications
+  [ ] Weather data
+  [ ] Time (flash a certain colour every 15 minutes or something)
+  [ ] Which bin goes out tomorrow :D
 
 TODO
 ====
