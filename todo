@@ -18,7 +18,9 @@ FEATURES
 [ ] Standalone Effects
   [ ] Fireplace
   [ ] Comets
-  [ ] Bouncing light (try smoothing it out across multiple LEDS)
+  [~] Bouncing light
+    [ ] Try smoothing it out across multiple LEDS
+    [ ] Allow choice of colour or have it change as it moves
 [ ] Notifications
   [ ] Weather data
   [ ] Time (flash a certain colour every 15 minutes or something)

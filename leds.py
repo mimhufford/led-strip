@@ -3,6 +3,7 @@ from watchdog.events import FileSystemEventHandler
 from rpi_ws281x import *
 from threading import Thread
 from time import sleep
+import math
 
 ###################
 # LED STRIP SETUP #
@@ -55,6 +56,8 @@ class OnData(FileSystemEventHandler):
                     for i in range(0, len(data), 3): # group colours into tuples
                         colours.append((data[i], data[i+2], data[i+1]))
                     pattern[1].set_gradient(pulse, rotate, *colours)
+                elif data[0] == 3: # Bouncer
+                    mode = 2
             break # always end the loop, unless the file was locked and we continued
 
 ####################
@@ -84,6 +87,24 @@ def float_strip():
 #########
 # MODES #
 #########
+class Bouncer:
+    def __init__(self):
+        self.speed = 0.1
+        self.time = 0.0
+
+    def tick(self):
+        self.time += DELAY * self.speed
+        if self.time > math.pi: self.time -= math.pi
+        position = abs(math.sin(self.time))
+        position = int(math.round(position * LED_COUNT))
+        for i in range(LED_COUNT):
+            if i != position:
+                strip.setPixelColor(i, Color(0, 0, 0))
+            else:
+                strip.setPixelColor(i, Color(255, 255, 255))
+        strip.show()
+        pass
+
 class Sequence:
     def __init__(self):
         self.state = float_strip()
@@ -180,7 +201,7 @@ def tick_leds():
 ############
 strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
 strip.begin()
-pattern = [Sequence(), Gradient()]
+pattern = [Sequence(), Gradient(), Bouncer()]
 active = True
 DELAY = 1/30
 mode = -1
