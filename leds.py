@@ -47,7 +47,7 @@ class OnData(FileSystemEventHandler):
                     colours = []
                     for i in range(0, len(data), 3): # group colours into tuples
                         colours.append((data[i], data[i+2], data[i+1]))
-                    pattern[0].set_sequence(*colours)
+                    pattern[0].set_sequence(colours)
                 elif data[0] == 2: # Gradient
                     mode = 1
                     pulse = bool(data[1])
@@ -59,6 +59,8 @@ class OnData(FileSystemEventHandler):
                     pattern[1].set_gradient(pulse, rotate, *colours)
                 elif data[0] == 3: # Bouncer
                     mode = 2
+                elif data[0] == 4: # Fireplace
+                    mode = 3
             break # always end the loop, unless the file was locked and we continued
 
 ####################
@@ -91,9 +93,9 @@ def float_strip():
 class Fireplace:
     def __init__(self):
         self.colours = [
-            (255, 255, 255),
+            (255, 0, 255),
             (255, 0, 0),
-            (180, 75, 0),
+            (180, 0, 75),
             (0, 0, 0),
         ]
         pass
@@ -119,19 +121,19 @@ class Fireplace:
 
 class Bouncer:
     def __init__(self):
-        self.speed = 0.1
+        self.speed = 1.5
         self.time = 0.0
 
     def tick(self):
         self.time += DELAY * self.speed
         if self.time > math.pi: self.time -= math.pi
         position = abs(math.sin(self.time))
-        position = int(math.round(position * LED_COUNT))
+        position = int(round(position * (LED_COUNT-1)))
         for i in range(LED_COUNT):
             if i != position:
                 strip.setPixelColor(i, Color(0, 0, 0))
             else:
-                strip.setPixelColor(i, Color(255, 255, 255))
+                strip.setPixelColor(i, Color(100, 100, 0))
         strip.show()
 
 class Sequence:
@@ -230,7 +232,7 @@ def tick_leds():
 ############
 strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
 strip.begin()
-pattern = [Sequence(), Gradient(), Bouncer()]
+pattern = [Sequence(), Gradient(), Bouncer(), Fireplace()]
 active = True
 DELAY = 1/30
 mode = -1

@@ -46,16 +46,17 @@ def gradient(pulse, rotate, colours):
 
 @app.route('/bouncer')
 def bouncer():
-    write(3)
+    write([3])
+    return redirect('/')
+
+@app.route('/fireplace')
+def fireplace():
+    write([4])
     return redirect('/')
 
 @app.route('/shutdown')
 def shutdown():
     write(b'quit')
-    return redirect('/')
-
-@app.route('/theatre')
-def theatre():
     return redirect('/')
 
 @app.route('/rainbow')
