@@ -171,7 +171,7 @@ class Gradient:
         self.pulse = False
         self.pulse_direction = 1
         self.rotate = False
-        self.rotate_delay = 0.1
+        self.rotate_delay = 0.7
         self.rotate_time = 0.0
         self.state = []
         self.target = []
@@ -205,8 +205,8 @@ class Gradient:
         # rotate colours
         if self.rotate:
             self.rotate_time += DELAY
-            while rotate_time >= rotate_delay:
-                rotate_time -= rotate_delay
+            while self.rotate_time >= self.rotate_delay:
+                self.rotate_time -= self.rotate_delay
                 self.state.insert(0, self.state.pop())
                 self.target.insert(0, self.target.pop())
 
