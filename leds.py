@@ -173,8 +173,7 @@ class Gradient:
         self.pulse = False
         self.pulse_direction = 1
         self.rotate = False
-        self.rotate_delay = 0.7
-        self.rotate_time = 0.0
+        self.rotate_speed = 1.0
         self.state = []
         self.target = []
         self.set_gradient(False, False, (255.0, 0.0, 0.0), (0.0, 0.0, 255.0))
@@ -205,17 +204,16 @@ class Gradient:
             strip.setBrightness(b)
 
         # rotate colours
-        if self.rotate:
-            self.rotate_time += DELAY
-            while self.rotate_time >= self.rotate_delay:
-                self.rotate_time -= self.rotate_delay
-                self.state.insert(0, self.state.pop())
-                self.target.insert(0, self.target.pop())
+        # TODO: this doesn't do a linear lerp for rotate, it really should.
+        if self.rotate and colour_approx_eq(self.state[0], self.target[0]):
+            self.state.insert(0, self.state.pop())
+            self.target.insert(0, self.target.pop())
 
         # push towards target colour
         for i, p in enumerate(self.state):
-            colour_lerp(p, self.target[i], DELAY)
+            colour_lerp(p, self.target[i], DELAY * self.rotate_speed)
             strip.setPixelColor(i, Color(int(p[0]), int(p[1]), int(p[2])))
+
         strip.show()
 
 ##########################
