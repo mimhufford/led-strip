@@ -59,6 +59,7 @@ class OnData(FileSystemEventHandler):
                     pattern[1].set_gradient(pulse, rotate, *colours)
                 elif data[0] == 3: # Bouncer
                     mode = 2
+                    pattern[2].set(data)
                 elif data[0] == 4: # Fireplace
                     mode = 3
             break # always end the loop, unless the file was locked and we continued
@@ -76,9 +77,7 @@ def lerp(a, b, t):
     return a + (b - a) * t
 
 def colour_lerp(a, b, t):
-    a[0] = lerp(a[0], b[0], t)
-    a[1] = lerp(a[1], b[1], t)
-    a[2] = lerp(a[2], b[2], t)
+    return (lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t))
 
 def float_strip():
     state = []
@@ -114,8 +113,7 @@ class Fireplace:
                 ci = t * random() * (len(self.colours) - 1)
                 ca = math.floor(ci)
                 cb = math.ceil(ci)
-                c = [*self.colours[ca]]
-                colour_lerp(c, self.colours[cb], ci % 1)
+                c = colour_lerp(self.colours[ca], self.colours[cb], ci % 1)
                 strip.setPixelColor(i, Color(int(c[0]), int(c[1]), int(c[2])))
         strip.show()
 
@@ -123,17 +121,24 @@ class Bouncer:
     def __init__(self):
         self.speed = 1.5
         self.time = 0.0
+        self.colour = (100.0, 100.0, 0.0)
+
+    def set(self, data):
+        pass
 
     def tick(self):
         self.time += DELAY * self.speed
         if self.time > math.pi: self.time -= math.pi
-        position = abs(math.sin(self.time))
-        position = int(round(position * (LED_COUNT-1)))
+        position = abs(math.sin(self.time)) * (LED_COUNT-1)
+        a = math.floor(position)
+        b = math.ceil(position)
         for i in range(LED_COUNT):
-            if i != position:
+            if i == a:
+                strip.setPixelColor(i, colour_lerp((0.0, 0.0, 0.0), self.colour, b - position))
+            elif i == b:
+                strip.setPixelColor(i, colour_lerp(self.colour, (0.0, 0.0, 0.0), b - position))
+            elif:
                 strip.setPixelColor(i, Color(0, 0, 0))
-            else:
-                strip.setPixelColor(i, Color(100, 100, 0))
         strip.show()
 
 class Sequence:
@@ -158,7 +163,7 @@ class Sequence:
         move_to_next = True
         target = self.colours[self.index]
         for i, p in enumerate(self.state):
-            colour_lerp(p, target, DELAY)
+            p = colour_lerp(p, target, DELAY)
             strip.setPixelColor(i, Color(int(p[0]), int(p[1]), int(p[2])))
             if not colour_approx_eq(p, target):
                 move_to_next = False
@@ -211,7 +216,7 @@ class Gradient:
 
         # push towards target colour
         for i, p in enumerate(self.state):
-            colour_lerp(p, self.target[i], DELAY * self.rotate_speed)
+            p = colour_lerp(p, self.target[i], DELAY * self.rotate_speed)
             strip.setPixelColor(i, Color(int(p[0]), int(p[1]), int(p[2])))
 
         strip.show()

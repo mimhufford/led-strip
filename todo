@@ -19,7 +19,7 @@ FEATURES
   [x] Fireplace
   [ ] Comets
   [~] Bouncing light
-    [ ] Try smoothing it out across multiple LEDS
+    [x] Try smoothing it out across multiple LEDS
     [ ] Allow choice of colour or have it change as it moves
 [ ] Notifications
   [ ] Weather data
